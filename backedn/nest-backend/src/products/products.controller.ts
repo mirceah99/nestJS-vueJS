@@ -31,8 +31,8 @@ export class ProductsController {
     return { insertedId };
   }
   @Post('query')
-  async getProductsByQuery() {
-    return await this.productService.getProductsByQuery();
+  async getProductsByQuery(@Body() queryObject: any) {
+    return await this.productService.getProductsByQuery(queryObject);
   }
   @Get()
   async getProducts() {

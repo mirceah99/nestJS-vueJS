@@ -25,10 +25,12 @@
 			<span @click="toggleUpdateDialog">✏️</span>
 		</th>
 	</tr>
+	<!-- TODO please change emit with provide - inject mechanism -->
 	<product-form
 		v-if="isUpdating"
 		actionType="update"
 		@close="toggleUpdateDialog"
+		@refetch="$emit('refetch')"
 		:productId="id"
 		:productName="name"
 		:productCode="code"
@@ -51,7 +53,7 @@ export default {
 		};
 	},
 	props: ["name", "code", "weight", "price", "color", "id"],
-	emits: ["deleteProduct"],
+	emits: ["deleteProduct", "refetch"],
 	methods: {
 		deleteProduct() {
 			const canDelete = confirm(`Delete ${this.name} (code: ${this.code})?`);
@@ -73,6 +75,7 @@ export default {
 					})
 					.finally(() => {
 						this.isDeleting = false;
+						this.$emit("refetch");
 					});
 			}
 		},

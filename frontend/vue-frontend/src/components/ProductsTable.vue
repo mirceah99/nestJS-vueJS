@@ -19,10 +19,15 @@
 				:color="product.color"
 				:price="product.price"
 				:weight="product.weight"
-				@deleteProduct="deleteProduct"
+				@refetch="fetchProducts"
 			></product-row>
 		</table>
-		<product-table-footer @refetch="fetchProducts"></product-table-footer>
+		<product-table-footer
+			:totalPages="totalPages"
+			:currentPage="currentPage"
+			@updateCurrentPage="updateCurrentPage"
+			@refetch="fetchProducts"
+		></product-table-footer>
 	</div>
 </template>
 <script>
@@ -34,6 +39,9 @@ export default {
 		return {
 			products: [],
 			isLoading: false,
+			totalPages: null,
+			currentPage: 1,
+			itemsPerPage: 5,
 		};
 	},
 	created() {
@@ -42,20 +50,21 @@ export default {
 	methods: {
 		fetchProducts() {
 			this.isLoading = true;
+			const queryObject = { page: this.currentPage, limit: this.itemsPerPage };
 			fetch("http://localhost:3000/produse/query", {
 				method: "POST",
 				cache: "no-cache",
 				headers: {
 					"Content-Type": "application/json",
 				},
+				body: JSON.stringify(queryObject),
 			})
 				.then((response) => {
-					console.log(response);
 					return response.json();
 				})
 				.then((data) => {
-					console.log(data);
-					this.products = data;
+					this.products = data.products;
+					this.totalPages = data.totalPages;
 				})
 				.catch((error) => {
 					console.log(error);
@@ -64,7 +73,10 @@ export default {
 					this.isLoading = false;
 				});
 		},
-		deleteProduct() {},
+		updateCurrentPage(newPageNumber) {
+			this.currentPage = newPageNumber;
+			this.fetchProducts();
+		},
 	},
 };
 </script>

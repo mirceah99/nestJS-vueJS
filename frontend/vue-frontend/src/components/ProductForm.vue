@@ -7,9 +7,8 @@
 					id="name"
 					name="name"
 					type="text"
-					ref="name"
 					required
-					:value="productName"
+					v-model="insertedName"
 				/>
 			</div>
 			<div class="form-control">
@@ -18,9 +17,8 @@
 					id="code"
 					name="code"
 					type="text"
-					ref="code"
 					required
-					:value="productCode"
+					v-model="insertedCode"
 				/>
 			</div>
 			<div class="form-control">
@@ -31,9 +29,8 @@
 					type="number"
 					min="0"
 					step=".01"
-					ref="weight"
 					required
-					:value="productWeight"
+					v-model="insertedWeight"
 				/>
 			</div>
 			<div class="form-control">
@@ -43,10 +40,9 @@
 					name="price"
 					type="number"
 					min="0"
-					ref="price"
 					step=".01"
 					required
-					:value="productPrice"
+					v-model="insertedPrice"
 				/>
 			</div>
 			<div class="form-control">
@@ -55,9 +51,8 @@
 					id="color"
 					name="color"
 					type="text"
-					ref="color"
 					required
-					:value="productColor"
+					v-model="insertedColor"
 				/>
 			</div>
 			<div>
@@ -83,7 +78,7 @@
 import LoadingImage from "../assets/Loading.gif";
 import BaseDialog from "./UI/BaseDialog.vue";
 export default {
-	mount() {
+	mounted() {
 		console.log("yep yep");
 	},
 	components: { BaseDialog },
@@ -117,24 +112,29 @@ export default {
 			required: false,
 		},
 	},
+
 	data() {
 		return {
 			loadingImage: LoadingImage,
 			isLoading: false,
 			isSuccess: false,
 			isError: false,
+			insertedName: this.productName,
+			insertedColor: this.productColor,
+			insertedWeight: this.productWeight,
+			insertedPrice: this.productPrice,
+			insertedCode: this.productCode,
 		};
 	},
-	emits: ["close"],
+	emits: ["close", "refetch"],
 	methods: {
 		submitForm() {
-			console.log(this.actionType);
 			const newProduct = {
-				name: this.$refs.name.value,
-				code: this.$refs.code.value,
-				weight: this.$refs.weight.value,
-				price: this.$refs.price.value,
-				color: this.$refs.color.value,
+				name: this.insertedName,
+				code: this.insertedCode,
+				weight: this.insertedWeight,
+				price: this.insertedPrice,
+				color: this.insertedColor,
 				isDeleted: false,
 			};
 			this.isSuccess = false;
@@ -144,7 +144,6 @@ export default {
 			if (this.actionType === "create") {
 				fetchPromise = fetch("http://localhost:3000/produse", {
 					method: "POST",
-					cache: "no-cache",
 					headers: {
 						"Content-Type": "application/json",
 					},
@@ -156,7 +155,6 @@ export default {
 					`http://localhost:3000/produse/${this.productId}`,
 					{
 						method: "PATCH",
-						cache: "no-cache",
 						headers: {
 							"Content-Type": "application/json",
 						},
@@ -178,6 +176,7 @@ export default {
 				})
 				.finally(() => {
 					this.isLoading = false;
+					this.$emit("refetch");
 				});
 		},
 	},

@@ -35,11 +35,22 @@ export class ProductsService {
     //TODO PLEASE LOOK OVER THIS MAP
     return await products.map(this.transformMongooseProductToMyProduct);
   }
-  async getProductsByQuery() {
-    // CHECK IT WAS DELETED TODO
-    const products = await this.productModel.find({ isDeleted: false }).exec();
+  async getProductsByQuery(queryObject) {
+    const { page = 1, limit = 10 } = queryObject;
+    console.log(queryObject);
+    const products = await this.productModel
+      .find({ isDeleted: false })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .exec();
+    const count = await this.productModel.countDocuments({ isDeleted: false });
+    console.log(count);
     //TODO PLEASE LOOK OVER THIS MAP
-    return await products.map(this.transformMongooseProductToMyProduct);
+    return {
+      products: await products.map(this.transformMongooseProductToMyProduct),
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+    };
   }
   async getProductById(productId: string) {
     // CHECK IT WAS DELETED TODO
