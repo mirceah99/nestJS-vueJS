@@ -1,7 +1,17 @@
 <template>
 	<div>
-		<button @click="toggleDisplayInsertForm">Add product</button>
+		<button @click="toggleDisplayInsertForm">Adauga inregistrare</button>
 		<button @click="$emit('refetch')">Reload</button>
+		<label>Items per page:</label>
+		<select
+			v-model="itemsPerPage"
+			@change="$emit('updateItemsPerPage', itemsPerPage)"
+		>
+			<option value="5" selected>5</option>
+			<option value="10">10</option>
+			<option value="15">15</option>
+			<!-- <option value="!=">!=</option> -->
+		</select>
 		<div class="paginator">
 			<button :disabled="allowPrevPage" @click="goToFirstPage">
 				&#60;&#60;
@@ -30,10 +40,11 @@ import ProductForm from "./ProductForm.vue";
 export default {
 	components: { ProductForm },
 	props: ["totalPages", "currentPage"],
-	emits: ["refetch", "updateCurrentPage"],
+	emits: ["refetch", "updateCurrentPage", "updateItemsPerPage"],
 	data() {
 		return {
 			displayInsertForm: false,
+			itemsPerPage: 5,
 		};
 	},
 	methods: {
@@ -78,5 +89,12 @@ div {
 	color: white;
 	border: 0px;
 	font-weight: bold;
+}
+label {
+	margin-top: 20px;
+}
+select {
+	margin-top: 10px;
+	margin-left: 10px;
 }
 </style>

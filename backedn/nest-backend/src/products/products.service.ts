@@ -36,19 +36,47 @@ export class ProductsService {
     return await products.map(this.transformMongooseProductToMyProduct);
   }
   async getProductsByQuery(queryObject) {
-    const { page = 1, limit = 10 } = queryObject;
-    console.log(queryObject);
+    const {
+      page = 1,
+      limit = 10,
+      sort = {},
+      filter = {},
+      numericFilter = {},
+    } = queryObject;
+    const processedFilter = { isDeleted: false };
+    // add text filter
+    for (const attr in filter) {
+      if (attr === 'isDeleted') continue;
+      processedFilter[attr] = { $regex: filter[attr], $options: 'i' };
+    }
+    // add numeric filter
+    for (const attr in numericFilter) {
+      switch (numericFilter[attr].method) {
+        case '<':
+          processedFilter[attr] = { $lt: numericFilter[attr].value };
+          break;
+        case '>':
+          processedFilter[attr] = { $gt: numericFilter[attr].value };
+          break;
+        default:
+          processedFilter[attr] = numericFilter[attr].value;
+          break;
+      }
+    }
+    console.log(processedFilter);
     const products = await this.productModel
-      .find({ isDeleted: false })
+      .find(processedFilter)
+      .collation({ locale: 'en' }) // enable Case-insensitive sorting
+      .sort(sort)
       .limit(limit)
       .skip((page - 1) * limit)
       .exec();
-    const count = await this.productModel.countDocuments({ isDeleted: false });
-    console.log(count);
+    const count = await this.productModel.countDocuments(processedFilter);
     //TODO PLEASE LOOK OVER THIS MAP
     return {
       products: await products.map(this.transformMongooseProductToMyProduct),
       totalPages: Math.ceil(count / limit),
+      totalResult: count,
       currentPage: page,
     };
   }

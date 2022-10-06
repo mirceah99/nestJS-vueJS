@@ -2,8 +2,11 @@
 	<tr>
 		<th>{{ name }}</th>
 		<th>{{ code }}</th>
-		<th>{{ weight }}</th>
-		<th class="price">
+		<th class="text-left">
+			<span>{{ weight }}</span>
+			<span> KG</span>
+		</th>
+		<th class="text-left">
 			<span>{{ price }}</span>
 			<span> RON</span>
 		</th>
@@ -127,5 +130,8 @@ tr th:last-child span:hover:not(.delete-fail-msg) {
 }
 .delete-fail-msg:hover::after {
 	display: block;
+}
+.text-left {
+	text-align: right;
 }
 </style>
