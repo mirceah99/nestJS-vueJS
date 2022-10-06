@@ -1,6 +1,6 @@
 **How to run the application**
 
-Docker (no git/github required) (**not recommended **, this option may contain an old version):
+Docker (no git/github required) (**not recommended**, this option may contain an old version):
 
 ```
 - docker pull mirceah99/nest-backend:1.0
