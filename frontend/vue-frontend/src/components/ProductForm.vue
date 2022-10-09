@@ -1,5 +1,5 @@
 <template>
-	<base-dialog @close="$emit('close')" :title="title">
+	<base-dialog @close="closeForm" :title="title">
 		<form @submit.prevent="submitForm">
 			<div class="form-control">
 				<label for="name">Name</label>
@@ -69,7 +69,7 @@
 				<button type="submit">
 					{{ actionName }}
 				</button>
-				<button type="reset" @click="$emit('close')">Cancel</button>
+				<button type="reset" @click="closeForm">Cancel</button>
 			</menu>
 		</form>
 	</base-dialog>
@@ -176,8 +176,12 @@ export default {
 				})
 				.finally(() => {
 					this.isLoading = false;
-					this.$emit("refetch");
+					// this.$emit("refetch");
 				});
+		},
+		closeForm() {
+			this.$emit("refetch");
+			this.$emit("close");
 		},
 	},
 	computed: {

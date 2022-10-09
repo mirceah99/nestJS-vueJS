@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from './product.model';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
 import { Model } from 'mongoose';
@@ -16,7 +16,14 @@ export class ProductsService {
     color: string,
     isDeleted: boolean,
   ) {
-    console.log('code', code);
+    //check data
+    if (weight < 0) {
+      throw new HttpException(`weight (${weight}) should be >= than 0`, 400);
+    }
+    if (price < 0) {
+      throw new HttpException(`price (${price}) should be >= than 0`, 400);
+    }
+
     const newProduct = new this.productModel({
       name,
       weight,
@@ -63,7 +70,6 @@ export class ProductsService {
           break;
       }
     }
-    console.log(processedFilter);
     const products = await this.productModel
       .find(processedFilter)
       .collation({ locale: 'en' }) // enable Case-insensitive sorting
@@ -97,9 +103,16 @@ export class ProductsService {
   ) {
     const updatedProduct = await this._getProductById(productId);
     updatedProduct.name = name ?? updatedProduct.name;
-    updatedProduct.code = code;
-    updatedProduct.weight = weight ?? updatedProduct.weight; //TODO check negative
-    updatedProduct.price = price ?? updatedProduct.price; //TODO check negative
+    updatedProduct.code = code ?? updatedProduct.code;
+
+    if (weight && weight < 0)
+      throw new HttpException(`weight (${weight}) should be >= than 0`, 400);
+    updatedProduct.weight = weight ?? updatedProduct.weight;
+
+    if (price && price < 0)
+      throw new HttpException(`price (${price}) should be >= than 0`, 400);
+    updatedProduct.price = price ?? updatedProduct.price;
+
     updatedProduct.color = color ?? updatedProduct.color;
     updatedProduct.isDeleted = isDeleted ?? updatedProduct.isDeleted;
     return this.transformMongooseProductToMyProduct(
